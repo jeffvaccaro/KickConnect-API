@@ -1,0 +1,5 @@
+In order to get the connection to work with the localhostDB I had to do the following:
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password_goes_here'; 
+
+Looked at AWS APIGATEWay vs Lambdas only.  Want to just use Lambdas, but I might need to use APIGATEWay due to size/complexity of APIs.
+Will convert to APIGateway if necessary after I see what the API's look like after completion.
