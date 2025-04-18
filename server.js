@@ -32,19 +32,22 @@ const isLocal = env === 'development';
 
 const allowedOrigins = [
   'http://localhost:4200', // Local Angular frontend
-  'https://www.kickconnect.net'
+  'https://www.kickconnect.net',
+  'https://kickconnect.net',
+  'https://api.kickconnect.net'
 ];
 
 const corsOptions = {
   origin: (origin, callback) => {
-      if (allowedOrigins.includes(origin) || !origin) {
-          callback(null, true);
-      } else {
-          callback(new Error('Not allowed by CORS'));
-      }
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
   },
 };
 
+// Apply CORS middleware FIRST
 app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
@@ -54,13 +57,6 @@ if (typeof swaggerSetup === 'function') {
 } else {
   console.error('swaggerSetup is not a function. Ensure it exports correctly.');
 }
-
-// Centralized error handling
-app.use((err, req, res, next) => {
-  logger.error(`Error occurred: ${err.message}`);
-  console.error(`Error occurred: ${err.message}`);
-  res.status(500).json({ error: 'An error occurred, please try again later.' });
-});
 
 // API routes
 const routers = [
@@ -86,6 +82,13 @@ routers.forEach(({ path, router }) => {
   } else {
     console.error(`Router at path ${path} is not a function. Ensure it exports correctly.`);
   }
+});
+
+// Centralized error handling (should come after routes)
+app.use((err, req, res, next) => {
+  logger.error(`Error occurred: ${err.message}`);
+  console.error(`Error occurred: ${err.message}`);
+  res.status(500).json({ error: 'An error occurred, please try again later.' });
 });
 
 // Serve Angular files in local development only
