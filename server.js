@@ -3,6 +3,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const authenticateToken = require('./middleware/authenticateToken.cjs');
 
 const swaggerSetup = require('./swagger.cjs');
 const logger = require('./logger');
@@ -31,6 +32,7 @@ const port = process.env.PORT || 3000;
 const isLocal = env === 'development';
 
 const allowedOrigins = [
+  'http://localhost:3000', // Local API
   'http://localhost:4200', // Local Angular frontend
   'https://www.kickconnect.net',
   'https://kickconnect.net',
@@ -58,14 +60,18 @@ if (typeof swaggerSetup === 'function') {
   console.error('swaggerSetup is not a function. Ensure it exports correctly.');
 }
 
+// Public routes
+app.use('/login', loginRouter);
+
+// Protected routes
+app.use('/user', authenticateToken, userRouter);
+
 // API routes
 const routers = [
   { path: '/auth', router: authRouter },
-  { path: '/user', router: userRouter },
   { path: '/membership', router: membRouter },
   { path: '/membershipAttendance', router: memAttRouter },
   { path: '/membershipPlan', router: memPlanRouter },
-  { path: '/login', router: loginRouter },
   { path: '/location', router: locationRouter },
   { path: '/role', router: roleRouter },
   { path: '/event', router: eventRouter },
@@ -78,7 +84,7 @@ const routers = [
 
 routers.forEach(({ path, router }) => {
   if (typeof router === 'function') {
-    app.use(path, router);
+    app.use(path, authenticateToken, router);
   } else {
     console.error(`Router at path ${path} is not a function. Ensure it exports correctly.`);
   }

@@ -2,78 +2,28 @@ const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
 const swaggerOptions = {
-    definition: {
-        openapi: '3.0.0',
-        info: {
-            title: 'KickConnectAPI',
-            version: '1.0.0',
-            description: 'API Documentation',
-            contact: {
-                name: 'Jeff',
-                email: 'jeff.vaccaro@live.com'
-            }
-        },
-        servers: [
-            {
-                url: 'http://localhost:3000',
-                description: 'Development server'
-            }
-        ],
-        tags: [
-            {
-                name: 'Login',
-            },
-            {
-                name: 'Account',
-            },
-            {
-                name: 'Location',
-            },            
-            {
-                name: 'User',
-            },
-            {
-                name: 'Role',
-            },
-            {
-                name: 'Class',
-            },
-            {
-                name: 'Common',
-            }
-        ],
-        components: {
-            schemas: {
-                Common: {
-                    type: 'object',
-                    properties: {
-                        city: {
-                            type: 'string',
-                            example: 'Denver'
-                        },
-                        state: {
-                            type: 'string',
-                            example: 'Colorado'
-                        },
-                        zip: {
-                            type: 'string',
-                            example: '80219'
-                        }
-                    }
-                }
-            }
-        }
+  swaggerDefinition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'KickConnect API',
+      version: '1.0.0',
+      description: 'API documentation for KickConnect',
     },
-    apis: ['./*.cjs'],
+    servers: [
+      {
+        url: 'http://localhost:3000',
+        description: 'Local server',
+      },
+    ],
+  },
+  apis: ['./*.js', './routes/*.js'], // Adjust this to match your file structure
 };
 
-const swaggerDocs = swaggerJsDoc(swaggerOptions);
-
-module.exports = (app) => {
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-    app.get('/json-docs/openapi.json', (req, res) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.send(swaggerDocs);
-        console.log("json output");
-    });
-};
+try {
+  const swaggerDocs = swaggerJsDoc(swaggerOptions);
+  module.exports = (app) => {
+    app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+  };
+} catch (error) {
+  console.error('Error setting up Swagger:', error.message);
+}
